@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gioco Indovinello</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #90EE90;
+        }
+        .quiz {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+        }
+        h1, p {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #message {
+            margin-top: 20px;
+            font-size: 22px;
+        }
+        .error {
+            animation: shake 0.5s;
+        }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+            100% { transform: translateX(0); }
+        }
+        .confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .christmas-background {
+            background-color: #FF0000;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/6/68/Christmas_background_pattern.jpg');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz">
+        <h1>Quando è stato il nostro primo viaggio?</h1>
+        <p>Inserisci il giorno di partenza corretto:</p>
+        <form id="dateForm">
+            <input type="number" id="day" placeholder="Giorno" min="1" max="31" required>
+            <input type="number" id="month" placeholder="Mese" min="1" max="12" required>
+            <input type="number" id="year" placeholder="Anno" min="1900" max="2100" required>
+            <br>
+            <button type="submit">Verifica</button>
+        </form>
+        <div id="message"></div>
+    </div>
+    <div class="confetti" id="confetti"></div>
+
+    <script>
+        let bentuClickCount = 0; // Contatore dei clic per il terzo indovinello
+
+        document.getElementById('dateForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const day = parseInt(document.getElementById('day').value);
+            const month = parseInt(document.getElementById('month').value);
+            const year = parseInt(document.getElementById('year').value);
+            const message = document.getElementById('message');
+
+            if (day === 17 && month === 3 && year === 2018) {
+                message.textContent = "Brava! Hai indovinato la data. Ora prossimo indovinello!";
+                message.style.color = "green";
+                triggerConfetti();
+
+                setTimeout(() => showNextQuiz(), 3000);
+            } else {
+                message.textContent = "Riprova.";
+                message.style.color = "red";
+                message.classList.add('error');
+                setTimeout(() => message.classList.remove('error'), 500);
+            }
+        });
+
+        function triggerConfetti() {
+            const confettiElement = document.getElementById('confetti');
+            confettiElement.innerHTML = '';
+            for (let i = 0; i < 100; i++) {
+                const confetto = document.createElement('div');
+                confetto.style.position = 'absolute';
+                confetto.style.width = '10px';
+                confetto.style.height = '10px';
+                confetto.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                confetto.style.left = Math.random() * window.innerWidth + 'px';
+                confetto.style.top = Math.random() * window.innerHeight + 'px';
+                confetto.style.opacity = 1;
+                confetto.style.animation = `fall ${Math.random() * 2 + 2}s ease-out forwards`;
+                confettiElement.appendChild(confetto);
+
+                setTimeout(() => confetto.remove(), 4000);
+            }
+        }
+
+        function showNextQuiz() {
+            document.body.className = 'christmas-background';
+            document.body.innerHTML = `
+                <div class="quiz">
+                    <h1>Nuovo Indovinello</h1>
+                    <p>Cosa hai fatto a Vienna davanti ad una porta dopo aver letto che bisognava spingere?</p>
+                    <button onclick="checkAnswer('spinto')">Spinto</button>
+                    <button onclick="checkAnswer('tirato')">Tirato perché sono storta</button>
+                    <div id="responseMessage"></div>
+                    <div class="confetti" id="confetti"></div>
+                </div>
+            `;
+        }
+
+        function checkAnswer(answer) {
+            const responseMessage = document.getElementById('responseMessage');
+            if (answer === 'tirato') {
+                responseMessage.textContent = "Brava! Hai indovinato anche questa!";
+                responseMessage.style.color = "green";
+                triggerConfetti();
+                setTimeout(() => showThirdQuiz(), 3000);
+            } else {
+                responseMessage.textContent = "Oh no! Risposta sbagliata, sei storta forte allora :D";
+                responseMessage.style.color = "red";
+                responseMessage.classList.add('error');
+                setTimeout(() => responseMessage.classList.remove('error'), 500);
+            }
+        }
+
+        function showThirdQuiz() {
+            document.body.style.backgroundColor = '#3c1361';
+            document.body.innerHTML = `
+                <div class="quiz">
+                    <h1>Nuovo Indovinello</h1>
+                    <p>Come si chiama l'app che abbiamo usato in Sardegna per vedere quanta aria tirava sulle spiagge?</p>
+                    <button id="bentuButton" onclick="checkThirdAnswer('bentu')">Bentu</button>
+                    <button onclick="checkThirdAnswer('ventuso')">Ventuso</button>
+                    <button onclick="checkThirdAnswer('vento forte assai tanto')">Vento forte assai tanto</button>
+                    <div id="thirdResponseMessage"></div>
+                    <div class="confetti" id="confetti"></div>
+                </div>
+            `;
+        }
+
+        function checkThirdAnswer(answer) {
+            const thirdResponseMessage = document.getElementById('thirdResponseMessage');
+            const bentuButton = document.getElementById('bentuButton');
+            if (answer === 'bentu') {
+                bentuClickCount++; // Incrementa il contatore
+                if (bentuClickCount < 3) {
+                    thirdResponseMessage.textContent = "Ops, attenta, il vento tira forte in Sardegna!";
+                    thirdResponseMessage.style.color = "red";
+                    thirdResponseMessage.classList.add('error');
+                    setTimeout(() => {
+                        thirdResponseMessage.classList.remove('error');
+                        moveBentuButton();
+                    }, 500);
+                } else {
+                    thirdResponseMessage.textContent = "Bravissima!";
+                    thirdResponseMessage.style.color = "green";
+                    triggerConfetti();
+                    bentuButton.style.display = 'none'; // Nascondi il pulsante "bentu" dopo il terzo clic
+
+                    // Mostra il messaggio finale e il pulsante per l'indizio
+                    showGiftHint();
+                }
+            } else {
+                thirdResponseMessage.textContent = "No, riprova!";
+                thirdResponseMessage.style.color = "red";
+                thirdResponseMessage.classList.add('error');
+                setTimeout(() => thirdResponseMessage.classList.remove('error'), 500);
+            }
+        }
+
+        function moveBentuButton() {
+            const bentuButton = document.getElementById('bentuButton');
+            const randomX = Math.random() * 200 + 200;  // Distanza limitata al centro della pagina
+            const randomY = Math.random() * 200 + 200;  // Distanza limitata al centro della pagina
+
+            bentuButton.style.position = 'absolute';
+            bentuButton.style.left = randomX + 'px';
+            bentuButton.style.top = randomY + 'px';
+        }
+
+        function showGiftHint() {
+            const giftMessage = document.createElement('div');
+            giftMessage.style.fontSize = '24px';
+            giftMessage.style.color = 'white';
+            giftMessage.innerHTML = `
+                <h2>Brava, hai riscattato un indizio per il regalo di Natale!</h2>
+                <button id="giftButton">Se lo vuoi clicca qua</button>
+                <div id="finalMessage" style="display:none; font-size: 28px; color: white; margin-top: 20px;"></div>
+            `;
+            document.querySelector('.quiz').appendChild(giftMessage);
+
+            document.getElementById('giftButton').addEventListener('click', function() {
+                document.getElementById('finalMessage').textContent = "Questo regalo mi renderà ancora più geloso, non vedo l'ora di dartelo";
+                document.getElementById('finalMessage').style.display = 'block';
+            });
+        }
+    </script>
+</body>
+</html>
